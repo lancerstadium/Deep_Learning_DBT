@@ -1,0 +1,10 @@
+# gitignore
+.tmp
+.vscode*
+.vscode
+.out
+.o
+.bc
+.s
+.ll
+.pyc
