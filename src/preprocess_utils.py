@@ -1,7 +1,6 @@
 # preprocess_utils.py
 
 import os
-import re
 import sys
 import angr
 from angrutils import *
@@ -9,21 +8,47 @@ from color_cls import colors
 from compile_utils import compile_module, input_file
 
 
+class block_data():
+    def __init__(self, host_addr: angr.Block.addr, host_insns: str, guest_addr: angr.Block.addr, guest_insns: str):
+        self.host_addr = host_addr
+        self.host_insns = host_insns
+        self.guest_addr = guest_addr
+        self.guest_insns = guest_insns
+    
+    def display(self, INST_ENABLE=False):
+        print(f"===============================")
+        print(f"Host addr: {self.host_addr:#x}")
+        if INST_ENABLE:
+            print("Host instructions:")
+            print(self.host_insns)
+        print(f"Guest addr: {self.guest_addr:#x}")
+        if INST_ENABLE:
+            print("Guest instructions:")
+            print(self.guest_insns)
+
 class block_couple():
     def __init__(self, host_block: angr.Block, guest_block: angr.Block):
         self.host_block = host_block
         self.guest_block = guest_block
+        host_insns = ""
+        for inst in host_block.capstone.insns:
+            host_insns += inst.mnemonic + " " + inst.op_str + "\n"
+        guest_insns = ""
+        for inst in guest_block.capstone.insns:
+            guest_insns += inst.mnemonic + " " + inst.op_str + "\n"
+        self.b_data = block_data(host_block.addr, host_insns, guest_block.addr, guest_insns)
     
     def display(self, INST_ENABLE=False, ARCH_ENABLE=False):
         if ARCH_ENABLE:
-            print(f"   {self.host_block.arch.linux_name} -> {self.guest_block.arch.linux_name}")
+            print(f"   Host \t<---> \tGuest")
+            print(f"   {self.host_block.arch.linux_name} \t<---> \t{self.guest_block.arch.linux_name}")
         if INST_ENABLE:
             print("Host instructions:")
             self.host_block.capstone.pp()
             print("Guest instructions:")            
             self.guest_block.capstone.pp()
         else:
-            print(f"   {hex(self.host_block.addr)} -> {hex(self.guest_block.addr)}")
+            print(f"   {hex(self.host_block.addr)} \t<---> \t{hex(self.guest_block.addr)}")
 
 class block_similarity():
     def __init__(self, ifile: input_file):
@@ -32,6 +57,8 @@ class block_similarity():
         self.proj_host: angr.Project   = angr.Project(ifile.host_out  , load_options={'auto_load_libs': False})
         self.proj_guest: angr.Project  = angr.Project(ifile.guest_out , load_options={'auto_load_libs': False})
         self.preprocess_blocks: block_couple = []
+        self.preprocess_data: list = []
+        self.bin_diff: angr.analyses.BinDiff = None
     
     def analysis_bin_smilarity(self):
         self.bin_diff = self.proj_host.analyses.BinDiff(self.proj_guest)
@@ -41,6 +68,9 @@ class block_similarity():
         plot_cfg(cfg, cfg_name, asminst=True, remove_imports=True, remove_path_terminator=True) 
 
     def draw_cfgs(self):
+        '''
+        可视化之前，必须先分析相似性
+        '''
         self.draw_cfg(self.bin_diff.cfg_a, self.ifile.cpath.replace('.c', '_host_cfg'))
         self.draw_cfg(self.bin_diff.cfg_b, self.ifile.cpath.replace('.c', '_guest_cfg'))
     
@@ -49,6 +79,9 @@ class block_similarity():
         return self.bin_diff.differing_blocks
     
     def display_preprocess_blocks(self, INST_ENABLE=False):
+        '''
+        显示预处理块，必须先分析相似性
+        '''
         print(f"Preprocess blocks:")
         for bcp in self.preprocess_blocks:
             # 如果是第一行，开启ARCH_ENABLE
@@ -57,38 +90,40 @@ class block_similarity():
             else:
                 bcp.display(INST_ENABLE)
 
-    def get_preprocess_blocks(self):
+    def get_preprocess_data(self):
         self.analysis_bin_smilarity()
         for block_cp in self.bin_diff.differing_blocks:
             host_block = self.proj_host.factory.block(block_cp[0].addr)
             guest_block = self.proj_guest.factory.block(block_cp[1].addr)
             bcp = block_couple(host_block, guest_block)
             self.preprocess_blocks.append(bcp)
-        return self.preprocess_blocks
+            self.preprocess_data.append(bcp.b_data) # 存放每个块对的block_data
+        return self.preprocess_data
 
 class preprocess_module():
     def __init__(self, cfile):
         self.cm = compile_module(cfile)
         self.cm.compile_test()
+        self.data_lists = []    # 每个文件所含preprocess_data
 
     def analyze_ifile(self, ifile):
         print(f"Analyze file: {ifile.cpath}")
         # 分析相似性
         bs = block_similarity(ifile)
-        bs.get_preprocess_blocks()
-        bs.display_preprocess_blocks()
-        # 可视化    
-        bs.draw_cfgs()
+        data_list = bs.get_preprocess_data()
+        bs.draw_cfgs()  # 可视化
+        return data_list
 
     def analyze(self):
         for ifile in self.cm.ifiles:
-            self.analyze_ifile(ifile)
+            data_list = self.analyze_ifile(ifile)
+            self.data_lists.append(data_list)
 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print(colors.fg.YELLOW + "Usage: python preprocess_utils.py <cfile>, use `../test` as default." + colors.RESET)
-        cfile = "/home/lancer/item/Deep_learning_DBT/test"
+        cfile = "./test"
+        print(colors.fg.YELLOW + "Usage: python src/preprocess.py <cfile>, use `" + cfile + "` as default." + colors.RESET)
     else:
         cfile = sys.argv[1]
     

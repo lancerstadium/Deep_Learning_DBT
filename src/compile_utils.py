@@ -126,8 +126,8 @@ class compile_module():
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print(colors.fg.YELLOW + "Usage: python compile_utils.py <cfile>, use `../test` as default." + colors.RESET)
-        cfile = "../test"
+        cfile = "./test"
+        print(colors.fg.YELLOW + "Usage: python src/compile_utils.py <cfile>, use `" + cfile + "` as default." + colors.RESET)
     else:
         cfile = sys.argv[1]
     

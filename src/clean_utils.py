@@ -1,6 +1,7 @@
 # clean_utils.py
 import os
 import sys
+from color_cls import colors
 
 
 def delete_files_with_suffix(directory, suffix_list, PRINT_ENABLE=False):
@@ -24,8 +25,8 @@ from clean_utils import delete_files_with_suffix
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python clean_utils.py <directory>, use `../test` as default.")
-        directory = "../test"
+        directory = "./test"
+        print(colors.fg.YELLOW + "Usage: python src/clean_utils.py <cfile>, use `" + directory + "` as default." + colors.RESET)
     else:
         directory = sys.argv[1]
 
