@@ -13,7 +13,6 @@ from clean_utils import delete_files_with_suffix
 CFLAG_STR = "-g -DSPEC_CPU -std=c++11  -DNDEBUG -DPERL_CORE -DSPEC_CPU_LINUX -L /usr/aarch-linux-gnu -std=gnu89"
 OPT_HOST = "-O2"
 OPT_GUEST = "-O2"
-DEBUG_ENABLE = True
 
 # Host ISA: 创建x86_64架构实例
 host = arch(
@@ -75,6 +74,7 @@ class compile_module():
         # ifiles: 存储文件列表
         self.ifiles = []
         self.ifile = input_file("")
+        self.QEMU_ENABLE = False
 
     def display(self):
         '''
@@ -112,8 +112,10 @@ class compile_module():
                     ifile.host_out = self.compile_out(host, file_path)
                     ifile.guest_out = self.compile_out(guest, file_path)
                     # 2. QEMU 运行测试
-                    self.qemu_out(host, ifile.host_out)
-                    self.qemu_out(guest, ifile.guest_out)
+                    if self.QEMU_ENABLE:
+                        self.qemu_out(host, ifile.host_out)
+                        self.qemu_out(guest, ifile.guest_out)
+                    # 3. 生成文件加入ifile
                     if not ifile.is_empty():
                         self.ifiles.append(ifile)
                     
