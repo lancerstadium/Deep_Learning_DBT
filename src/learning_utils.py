@@ -11,7 +11,7 @@ from preprocess_utils import preprocess_module
 class learning_module:
     def __init__(self, cfile):
         self.pm = preprocess_module(cfile)
-        self.pm.analyze()
+        self.pm.analyze(STORE_ENABLE=False)
     
     def display_data(self):
         for data_list in self.pm.data_lists:

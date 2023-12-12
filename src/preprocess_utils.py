@@ -120,7 +120,7 @@ class preprocess_module():
             self.data_lists = json.load(f)
         print(colors.fg.BLUE + "Data loaded: " + path + colors.RESET)
 
-    def analyze(self):
+    def analyze(self, STORE_ENABLE=False):
         for ifile in self.cm.ifiles:
             data_list = self.analyze_ifile(ifile)
             d_l = {
@@ -128,7 +128,8 @@ class preprocess_module():
                 "translation": data_list
             }
             self.data_lists.append(d_l)
-        self.store_data()
+        if STORE_ENABLE:
+            self.store_data()
 
 
 if __name__ == "__main__":
