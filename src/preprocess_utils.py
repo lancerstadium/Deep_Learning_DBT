@@ -14,8 +14,8 @@ class block_data():
         self.data_dict = {
             "host_addr": hex(host_addr),
             "guest_addr": hex(guest_addr),
-            "x86_64": host_insns,
-            "aarch64": guest_insns
+            "host_insns": host_insns,
+            "guest_insns": guest_insns
         }
     
     def display(self, INST_ENABLE=False):

@@ -12,12 +12,28 @@ class learning_module:
     def __init__(self, cfile):
         self.pm = preprocess_module(cfile)
         self.pm.analyze(STORE_ENABLE=False)
+        self.data = []
+        self.source = "aarch64"
+        self.target = "x86_64"
     
-    def display_data(self):
+    def display_origin_data(self):
         for data_list in self.pm.data_lists:
             print(colors.fg.BLUE + "Data source: " + data_list['source'] + colors.RESET)
-            for data in data_list['translation']:
-                print(data)
+            for ts in data_list['translation']:
+                print(ts)
+    
+    def display_data(self):
+        for ts in self.data:
+            print(ts)
+
+    def extract_data(self):
+        for data_list in self.pm.data_lists:
+            for ts in data_list['translation']:
+                temp = {
+                    self.source : ts["guest_insns"],
+                    self.target : ts["host_insns"]
+                }
+                self.data.append(temp)
     
     def store_data(self, path="./test/temp_data.json"):
         self.pm.store_data(path)
@@ -26,10 +42,12 @@ class learning_module:
         self.pm.load_data(path)
     
     def learning_test(self):
-        classifier = pipeline("sentiment-analysis",
-                      model="IDEA-CCNL/Erlangshen-Roberta-110M-Sentiment")
-        result = classifier("今天心情很坏")
-        print(result)
+        self.extract_data()
+        self.display_data()
+        # classifier = pipeline("sentiment-analysis",
+        #               model="IDEA-CCNL/Erlangshen-Roberta-110M-Sentiment")
+        # result = classifier("今天心情很坏")
+        # print(result)
 
 
 if __name__ == "__main__":
@@ -44,4 +62,4 @@ if __name__ == "__main__":
         sys.exit(1)
     
     lm = learning_module(cfile)
-    lm.display_data()
+    lm.learning_test()
