@@ -15,12 +15,15 @@ class learning_module:
     
     def display_data(self):
         for data_list in self.pm.data_lists:
-            print(f"Data source: {data_list['source']}")
+            print(colors.fg.BLUE + "Data source: " + data_list['source'] + colors.RESET)
             for data in data_list['translation']:
                 print(data)
     
     def store_data(self, path="./test/temp_data.json"):
         self.pm.store_data(path)
+    
+    def load_data(self, path="./test/temp_data.json"):
+        self.pm.load_data(path)
     
     def learning_test(self):
         classifier = pipeline("sentiment-analysis",
@@ -41,4 +44,4 @@ if __name__ == "__main__":
         sys.exit(1)
     
     lm = learning_module(cfile)
-    lm.store_data()
+    lm.display_data()

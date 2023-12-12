@@ -113,6 +113,12 @@ class preprocess_module():
     def store_data(self, path = "./test/temp_data.json"):
         with open(path, 'w') as f:
             json.dump(self.data_lists, f)
+        print(colors.fg.BLUE + "Data stored: " + path + colors.RESET)
+    
+    def load_data(self, path = "./test/temp_data.json"):
+        with open(path, 'r') as f:
+            self.data_lists = json.load(f)
+        print(colors.fg.BLUE + "Data loaded: " + path + colors.RESET)
 
     def analyze(self):
         for ifile in self.cm.ifiles:
@@ -122,6 +128,7 @@ class preprocess_module():
                 "translation": data_list
             }
             self.data_lists.append(d_l)
+        self.store_data()
 
 
 if __name__ == "__main__":
