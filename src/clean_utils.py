@@ -33,5 +33,5 @@ if __name__ == "__main__":
     if not os.path.isdir(directory):
         print(f"The specified directory '{directory}' does not exist.")
         sys.exit(1)
-    suffix_list = ['.out', 'png']  # 需要删除的文件后缀列表
+    suffix_list = ['.out', 'png', 'json']  # 需要删除的文件后缀列表
     delete_files_with_suffix(directory, suffix_list)

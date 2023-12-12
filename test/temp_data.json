@@ -1,0 +1,90 @@
+[
+    {
+        "source": "./test/temp_01.c",
+        "translation": [
+            {
+                "host_addr": "0x401030",
+                "guest_addr": "0x400630",
+                "x86_64": "jmp qword ptr [rip + 0x2fe2]\n",
+                "aarch64": "adrp x16, #0x411000\nldr x17, [x16, #0x20]\nadd x16, x16, #0x20\nbr x17\n"
+            },
+            {
+                "host_addr": "0x401140",
+                "guest_addr": "0x400754",
+                "x86_64": "push rax\nlea rdi, [rip + 0xebc]\ncall 0x401030\n",
+                "aarch64": "stp x29, x30, [sp, #-0x10]!\nmov x29, sp\nadrp x0, #0x400000\nadd x0, x0, #0x78c\nbl #0x400630\n"
+            },
+            {
+                "host_addr": "0x401050",
+                "guest_addr": "0x400640",
+                "x86_64": "endbr64 \nxor ebp, ebp\nmov r9, rdx\npop rsi\nmov rdx, rsp\nand rsp, 0xfffffffffffffff0\npush rax\npush rsp\nxor r8d, r8d\nxor ecx, ecx\nlea rdi, [rip + 0xd1]\ncall qword ptr [rip + 0x2f63]\n",
+                "aarch64": "nop \nmov x29, #0\nmov x30, #0\nmov x5, x0\nldr x1, [sp]\nadd x2, sp, #8\nmov x6, sp\nadrp x0, #0x410000\nldr x0, [x0, #0xfd8]\nmov x3, #0\nmov x4, #0\nbl #0x4005f0\n"
+            }
+        ]
+    },
+    {
+        "source": "./test/temp_02.c",
+        "translation": [
+            {
+                "host_addr": "0x401030",
+                "guest_addr": "0x400630",
+                "x86_64": "jmp qword ptr [rip + 0x2fe2]\n",
+                "aarch64": "adrp x16, #0x411000\nldr x17, [x16, #0x20]\nadd x16, x16, #0x20\nbr x17\n"
+            },
+            {
+                "host_addr": "0x40119b",
+                "guest_addr": "0x4007ac",
+                "x86_64": "mov edi, ecx\njmp 0x401150\n",
+                "aarch64": "mov w10, w9\nb #0x400768\n"
+            },
+            {
+                "host_addr": "0x40119f",
+                "guest_addr": "0x4007b4",
+                "x86_64": "push rax\nlea rdi, [rip + 0xe5d]\nxor eax, eax\ncall 0x401030\n",
+                "aarch64": "stp x29, x30, [sp, #-0x10]!\nmov x29, sp\nadrp x0, #0x400000\nadd x0, x0, #0x7ec\nbl #0x400630\n"
+            },
+            {
+                "host_addr": "0x401150",
+                "guest_addr": "0x400764",
+                "x86_64": "cmp ecx, edi\nmov eax, 0\ncmove eax, ecx\nadd esi, eax\ninc ecx\ndec r8d\ncmp ecx, 0x65\nje 0x40119f\n",
+                "aarch64": "mov w10, #2\ncmp w9, w10\nadd w8, w8, #1\ncsel w10, w9, wzr, eq\nadd w9, w9, #1\nadd w1, w10, w1\ncmp w9, #0x65\nb.eq #0x4007b4\n"
+            },
+            {
+                "host_addr": "0x40118a",
+                "guest_addr": "0x4007a0",
+                "x86_64": "lea eax, [r8 + rdi]\ninc eax\nmov edx, edi\ninc edx\nmov edi, edx\ncmp eax, 2\njne 0x401180\n",
+                "aarch64": "add w11, w11, #1\ncmp w8, w11\nb.ne #0x400790\n"
+            },
+            {
+                "host_addr": "0x401170",
+                "guest_addr": "0x40078c",
+                "x86_64": "mov edi, 2\nnop word ptr cs:[rax + rax]\nmov eax, ecx\nxor edx, edx\ndiv edi\ntest edx, edx\nje 0x401150\n",
+                "aarch64": "mov w11, wzr\nadd w10, w11, #2\nudiv w12, w9, w10\nmsub w12, w12, w10, w9\ncbz w12, #0x400768\n"
+            },
+            {
+                "host_addr": "0x401140",
+                "guest_addr": "0x400754",
+                "x86_64": "mov ecx, 2\nxor r8d, r8d\nxor esi, esi\njmp 0x401166\n",
+                "aarch64": "mov w8, wzr\nmov w1, wzr\nmov w9, #2\nb #0x400784\n"
+            },
+            {
+                "host_addr": "0x401166",
+                "guest_addr": "0x400784",
+                "x86_64": "mov edi, 2\ncmp ecx, 3\njb 0x401150\n",
+                "aarch64": "cmp w9, #3\nb.lo #0x400764\n"
+            },
+            {
+                "host_addr": "0x401180",
+                "guest_addr": "0x400790",
+                "x86_64": "mov eax, ecx\nxor edx, edx\ndiv edi\ntest edx, edx\nje 0x401150\n",
+                "aarch64": "add w10, w11, #2\nudiv w12, w9, w10\nmsub w12, w12, w10, w9\ncbz w12, #0x400768\n"
+            },
+            {
+                "host_addr": "0x401050",
+                "guest_addr": "0x400640",
+                "x86_64": "endbr64 \nxor ebp, ebp\nmov r9, rdx\npop rsi\nmov rdx, rsp\nand rsp, 0xfffffffffffffff0\npush rax\npush rsp\nxor r8d, r8d\nxor ecx, ecx\nlea rdi, [rip + 0xd1]\ncall qword ptr [rip + 0x2f63]\n",
+                "aarch64": "nop \nmov x29, #0\nmov x30, #0\nmov x5, x0\nldr x1, [sp]\nadd x2, sp, #8\nmov x6, sp\nadrp x0, #0x410000\nldr x0, [x0, #0xfd8]\nmov x3, #0\nmov x4, #0\nbl #0x4005f0\n"
+            }
+        ]
+    }
+]

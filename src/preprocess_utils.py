@@ -3,6 +3,7 @@
 import os
 import sys
 import angr
+import json
 from angrutils import *
 from color_cls import colors
 from compile_utils import compile_module, input_file
@@ -10,22 +11,17 @@ from compile_utils import compile_module, input_file
 
 class block_data():
     def __init__(self, host_addr: angr.Block.addr, host_insns: str, guest_addr: angr.Block.addr, guest_insns: str):
-        self.host_addr = host_addr
-        self.host_insns = host_insns
-        self.guest_addr = guest_addr
-        self.guest_insns = guest_insns
+        self.data_dict = {
+            "host_addr": hex(host_addr),
+            "guest_addr": hex(guest_addr),
+            "x86_64": host_insns,
+            "aarch64": guest_insns
+        }
     
     def display(self, INST_ENABLE=False):
-        print(f"===============================")
-        print(f"Host addr: {self.host_addr:#x}")
-        if INST_ENABLE:
-            print("Host instructions:")
-            print(self.host_insns)
-        print(f"Guest addr: {self.guest_addr:#x}")
-        if INST_ENABLE:
-            print("Guest instructions:")
-            print(self.guest_insns)
-
+        json_string = json.dumps(self.data_dict)
+        print(json_string)
+    
 class block_couple():
     def __init__(self, host_block: angr.Block, guest_block: angr.Block):
         self.host_block = host_block
@@ -97,7 +93,7 @@ class block_similarity():
             guest_block = self.proj_guest.factory.block(block_cp[1].addr)
             bcp = block_couple(host_block, guest_block)
             self.preprocess_blocks.append(bcp)
-            self.preprocess_data.append(bcp.b_data) # 存放每个块对的block_data
+            self.preprocess_data.append(bcp.b_data.data_dict) # 存放每个块对的block_data
         return self.preprocess_data
 
 class preprocess_module():
@@ -113,11 +109,19 @@ class preprocess_module():
         data_list = bs.get_preprocess_data()
         bs.draw_cfgs()  # 可视化
         return data_list
+    
+    def store_data(self, path = "./test/temp_data.json"):
+        with open(path, 'w') as f:
+            json.dump(self.data_lists, f)
 
     def analyze(self):
         for ifile in self.cm.ifiles:
             data_list = self.analyze_ifile(ifile)
-            self.data_lists.append(data_list)
+            d_l = {
+                "source": ifile.cpath,
+                "translation": data_list
+            }
+            self.data_lists.append(d_l)
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ import os
 import sys
 import angr
 from color_cls import colors
+from transformers import pipeline
 from preprocess_utils import preprocess_module
 
 
@@ -13,13 +14,19 @@ class learning_module:
         self.pm.analyze()
     
     def display_data(self):
-        index = 1
         for data_list in self.pm.data_lists:
-            print(f"Data list: file{index}")
-            for data in data_list:
-                data.display(INST_ENABLE=True)
-            index = index + 1
-            
+            print(f"Data source: {data_list['source']}")
+            for data in data_list['translation']:
+                print(data)
+    
+    def store_data(self, path="./test/temp_data.json"):
+        self.pm.store_data(path)
+    
+    def learning_test(self):
+        classifier = pipeline("sentiment-analysis",
+                      model="IDEA-CCNL/Erlangshen-Roberta-110M-Sentiment")
+        result = classifier("今天心情很坏")
+        print(result)
 
 
 if __name__ == "__main__":
@@ -34,5 +41,4 @@ if __name__ == "__main__":
         sys.exit(1)
     
     lm = learning_module(cfile)
-    lm.display_data()
-
+    lm.store_data()

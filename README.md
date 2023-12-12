@@ -23,10 +23,12 @@ uname -m
 sudo apt install clang-15 llvm-15
 sudo apt-get install gcc-aarch64-linux-gnu
 pip install angr
-pip install angr -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-pip install angr-utils -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+pip install angr -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install angr-utils -i https://pypi.tuna.tsinghua.edu.cn/simple
 sudo apt-get install graphviz
 dot -V
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple transformers
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple torch
 ```
 
 
