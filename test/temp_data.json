@@ -23,6 +23,29 @@
         ]
     },
     {
+        "source": "./test/temp_03.c",
+        "translation": [
+            {
+                "host_addr": "0x401030",
+                "guest_addr": "0x400630",
+                "host_insns": "jmp qword ptr [rip + 0x2fe2]\n",
+                "guest_insns": "adrp x16, #0x411000\nldr x17, [x16, #0x20]\nadd x16, x16, #0x20\nbr x17\n"
+            },
+            {
+                "host_addr": "0x401140",
+                "guest_addr": "0x400754",
+                "host_insns": "push rax\nlea rdi, [rip + 0xebc]\nmovabs rsi, 0x33db76a7c594bfc3\nxor eax, eax\ncall 0x401030\n",
+                "guest_insns": "stp x29, x30, [sp, #-0x10]!\nmov x29, sp\nmov x1, #0xbfc3\nadrp x0, #0x400000\nadd x0, x0, #0x79c\nmovk x1, #0xc594, lsl #16\nmovk x1, #0x76a7, lsl #32\nmovk x1, #0x33db, lsl #48\nbl #0x400630\n"
+            },
+            {
+                "host_addr": "0x401050",
+                "guest_addr": "0x400640",
+                "host_insns": "endbr64 \nxor ebp, ebp\nmov r9, rdx\npop rsi\nmov rdx, rsp\nand rsp, 0xfffffffffffffff0\npush rax\npush rsp\nxor r8d, r8d\nxor ecx, ecx\nlea rdi, [rip + 0xd1]\ncall qword ptr [rip + 0x2f63]\n",
+                "guest_insns": "nop \nmov x29, #0\nmov x30, #0\nmov x5, x0\nldr x1, [sp]\nadd x2, sp, #8\nmov x6, sp\nadrp x0, #0x410000\nldr x0, [x0, #0xfd8]\nmov x3, #0\nmov x4, #0\nbl #0x4005f0\n"
+            }
+        ]
+    },
+    {
         "source": "./test/temp_02.c",
         "translation": [
             {

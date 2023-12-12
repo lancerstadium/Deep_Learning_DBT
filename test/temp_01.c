@@ -1,5 +1,5 @@
 /**
- * \file  temp_01.c
+ * \file  ./test/temp_01.c
  * \brief 打印 "hello, world!" 字符串
 */
 

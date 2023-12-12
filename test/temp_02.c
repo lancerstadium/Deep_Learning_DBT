@@ -1,5 +1,5 @@
 /**
- * \file  temp_02.c
+ * \file  ./test/temp_02.c
  * \brief 求 0~100 以内所有质数之和
 */
 
