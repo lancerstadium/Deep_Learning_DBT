@@ -1,7 +1,5 @@
 # Experiments 实验
 
-    本文进行了如下实验
-
 ## Environment 实验环境
 
 OS: Linux Ubuntu 22.04 LTS
@@ -18,25 +16,49 @@ Benchmark: Spec2006
 uname -m
 ```
 
-- Install
+- Miniconda Install
+
+url: https://docs.conda.io/projects/miniconda/en/latest/
 
 ```
+mkdir -p ~/miniconda3
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+rm -rf ~/miniconda3/miniconda.sh
+```
+
+安装后，初始化新安装的 Miniconda。以下命令针对 bash 和 zsh shell 进行初始化：
+```
+~/miniconda3/bin/conda init bash
+~/miniconda3/bin/conda init zsh
+```
+
+- Package Install
+
+安装：
+```
 sudo apt install clang-15 llvm-15
-sudo apt-get install gcc-aarch64-linux-gnu
+sudo apt-get install gcc-aarch64-linux-gnu graphviz
+
+# global
 pip install angr
-pip install angr -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install angr-utils -i https://pypi.tuna.tsinghua.edu.cn/simple
-sudo apt-get install graphviz
-dot -V
+pip install angr-utils
+pip install transformers
+pip install torch
+pip install accelerate -U
+
+# zh
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple angr
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple angr-utils
 pip install -i https://pypi.tuna.tsinghua.edu.cn/simple transformers
 pip install -i https://pypi.tuna.tsinghua.edu.cn/simple torch
 pip install -i https://pypi.tuna.tsinghua.edu.cn/simple accelerate -U
 
-pip install -i https://pypi.tuna.tsinghua.edu.cn/simple tranformers==4.30.1
-pip install -i https://pypi.tuna.tsinghua.edu.cn/simple torch=2.0.0
+```
 
-pip install --upgrade transformers==4.30.1 
-pip install --upgrade torch==2.0.0
+管理：
+```
+conda list --export > requirements.txt
 ```
 
 

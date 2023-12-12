@@ -75,6 +75,7 @@ class compile_module():
         self.ifiles = []
         self.ifile = input_file("")
         self.QEMU_ENABLE = False
+        self.SPEC_ENABLE = False
 
     def display(self):
         '''
