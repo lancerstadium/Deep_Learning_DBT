@@ -4,8 +4,9 @@ import os
 import sys
 import angr
 from color_cls import colors
-from transformers import pipeline
+from transformers import pipeline, AutoTokenizer, DataCollatorForSeq2Seq, AutoModelForSeq2SeqLM, Seq2SeqTrainingArguments, Seq2SeqTrainer
 from preprocess_utils import preprocess_module
+from compile_utils import host, guest
 
 
 class learning_module:
@@ -13,8 +14,8 @@ class learning_module:
         self.pm = preprocess_module(cfile)
         self.pm.analyze(STORE_ENABLE=False)
         self.data = []
-        self.source = "aarch64"
-        self.target = "x86_64"
+        self.source = guest.ARCH_STR
+        self.target = host.ARCH_STR
     
     def display_origin_data(self):
         for data_list in self.pm.data_lists:
@@ -30,8 +31,8 @@ class learning_module:
         for data_list in self.pm.data_lists:
             for ts in data_list['translation']:
                 temp = {
-                    self.source : ts["guest_insns"],
-                    self.target : ts["host_insns"]
+                    self.source : ts['guest_insns'],
+                    self.target : ts['host_insns']
                 }
                 self.data.append(temp)
     
@@ -41,13 +42,47 @@ class learning_module:
     def load_data(self, path="./test/temp_data.json"):
         self.pm.load_data(path)
     
-    def learning_test(self):
+    def tokenizer_func(self):
         self.extract_data()
-        self.display_data()
-        # classifier = pipeline("sentiment-analysis",
-        #               model="IDEA-CCNL/Erlangshen-Roberta-110M-Sentiment")
-        # result = classifier("今天心情很坏")
-        # print(result)
+        self.checkpoint = "t5-small"
+        self.tokenizer = AutoTokenizer.from_pretrained(self.checkpoint)
+        prefix = f"translate {self.source} to {self.target}: "
+        inputs = [prefix + insns[self.source] for insns in self.data]
+        targets = [insns[self.target] for insns in self.data]
+        model_inputs = self.tokenizer(inputs, text_target=targets, max_length=128, truncation=True)
+        self.data_collator = DataCollatorForSeq2Seq(tokenizer=self.tokenizer, model=self.checkpoint)
+        return model_inputs
+    
+    def training_func(self):
+        self.tokenized_data = self.tokenizer_func()
+        self.model = AutoModelForSeq2SeqLM.from_pretrained(self.checkpoint)
+        self.training_args = Seq2SeqTrainingArguments(
+            output_dir="model",
+            evaluation_strategy="epoch",
+            learning_rate=2e-5,
+            per_device_train_batch_size=16,
+            per_device_eval_batch_size=16,
+            weight_decay=0.01,
+            save_total_limit=3,
+            num_train_epochs=2,
+            predict_with_generate=True,
+            fp16=True,
+            push_to_hub=True,
+        )
+        self.trainer = Seq2SeqTrainer(
+            model=self.model,
+            args=self.training_args,
+            train_dataset=self.tokenized_data["train"],
+            eval_dataset=self.tokenized_data["test"],
+            tokenizer=self.tokenizer,
+            data_collator=self.data_collator,
+            # compute_metrics=compute_metrics,
+        )
+        self.trainer.train()
+
+    def learning_test(self):
+        self.training_func()
+        
 
 
 if __name__ == "__main__":

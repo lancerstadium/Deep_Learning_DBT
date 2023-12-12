@@ -30,6 +30,13 @@ sudo apt-get install graphviz
 dot -V
 pip install -i https://pypi.tuna.tsinghua.edu.cn/simple transformers
 pip install -i https://pypi.tuna.tsinghua.edu.cn/simple torch
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple accelerate -U
+
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple tranformers==4.30.1
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple torch=2.0.0
+
+pip install --upgrade transformers==4.30.1 
+pip install --upgrade torch==2.0.0
 ```
 
 
