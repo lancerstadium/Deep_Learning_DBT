@@ -46,6 +46,8 @@ pip install angr-utils
 pip install transformers
 pip install torch
 pip install accelerate -U
+pip install sentencepiece
+pip install datasets
 
 # zh
 pip install -i https://pypi.tuna.tsinghua.edu.cn/simple angr

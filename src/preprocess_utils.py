@@ -1,11 +1,11 @@
 # preprocess_utils.py
-
 import os
 import sys
 import angr
 import json
 from angrutils import *
 from color_cls import colors
+from clean_utils import delete_files_with_suffix
 from compile_utils import compile_module, input_file
 
 
@@ -97,39 +97,53 @@ class block_similarity():
         return self.preprocess_data
 
 class preprocess_module():
-    def __init__(self, cfile):
+    def __init__(self, cfile, COMPILE_ENABLE=True):
         self.cm = compile_module(cfile)
-        self.cm.compile_test()
+        if COMPILE_ENABLE:
+            self.cm.compile_test()
         self.data_lists = []    # 每个文件所含preprocess_data
+        self.data_path = "./test/temp_data.json"
 
-    def analyze_ifile(self, ifile):
-        print(f"Analyze file: {ifile.cpath}")
+    def analyze_ifile(self, ifile, CFG_ENABLE=False):
+        print(colors.fg.BLUE + "Analyze file: " + ifile.cpath + colors.RESET)
         # 分析相似性
         bs = block_similarity(ifile)
         data_list = bs.get_preprocess_data()
-        bs.draw_cfgs()  # 可视化
+        if CFG_ENABLE:
+            bs.draw_cfgs()  # 可视化
         return data_list
     
-    def store_data(self, path = "./test/temp_data.json"):
+    def store_data(self, path = ""):
+        path = path if path else self.data_path
         with open(path, 'w') as f:
             json.dump(self.data_lists, f)
         print(colors.fg.BLUE + "Data stored: " + path + colors.RESET)
     
-    def load_data(self, path = "./test/temp_data.json"):
+    def load_data(self, path = ""):
+        path = path if path else self.data_path
         with open(path, 'r') as f:
             self.data_lists = json.load(f)
         print(colors.fg.BLUE + "Data loaded: " + path + colors.RESET)
 
-    def analyze(self, STORE_ENABLE=False):
+    def display_data(self):
+        for data_list in self.data_lists:
+            print(colors.fg.BLUE + "Data source: " + data_list['source'] + colors.RESET)
+            for ts in data_list['translation']:
+                print(ts)
+
+    def analyze(self, STORE_ENABLE=False, CFG_ENABLE=False, BIN_ENABLE=False):
+        print(colors.fg.BLUE + "Preprocessing..." + colors.RESET)
         for ifile in self.cm.ifiles:
-            data_list = self.analyze_ifile(ifile)
+            data_list = self.analyze_ifile(ifile, CFG_ENABLE)
             d_l = {
                 "source": ifile.cpath,
                 "translation": data_list
             }
             self.data_lists.append(d_l)
-        if STORE_ENABLE:
+        if STORE_ENABLE:    # 存储数据
             self.store_data()
+        if not BIN_ENABLE:  # 删除二进制文件
+            delete_files_with_suffix( os.path.dirname(ifile.cpath), ['.out'])
 
 
 if __name__ == "__main__":
