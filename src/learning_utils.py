@@ -11,8 +11,8 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, Seq2SeqTrainingAr
 
 
 class learning_module:
-    def __init__(self, cfile):
-        self.JSON_PATH = "./test/temp_data.json"
+    def __init__(self, cfile, DATA_PATH=""):
+        self.JSON_PATH = DATA_PATH
         self.MODEL_DIR = "./model"
         self.source = guest.ARCH_STR
         self.target = host.ARCH_STR
@@ -40,7 +40,7 @@ class learning_module:
         }
         return insns
 
-    def extract_data(self):
+    def extract_data(self, PRINT_ENABLE=False):
         if self.JSON_PATH:
             self.pm.load_data(self.JSON_PATH)
         # 过滤 json 数据信息，整合为 dictionary
@@ -49,7 +49,8 @@ class learning_module:
         all_data = Dataset.from_dict(dict_data)
         # 划分测试集和训练集：test_size = 0.2
         self.data = all_data.train_test_split(test_size=self.split_point)
-        print(self.data)
+        if PRINT_ENABLE:
+            print(self.data)
     
     # ======== Model 相关函数 ========= #
     def tokenize_func(self, examples):
@@ -58,14 +59,18 @@ class learning_module:
         model_inputs = self.tokenizer(source_insns, text_target=target_insns, max_length=512, padding=True, truncation=True)
         return model_inputs
 
-    def model_prepare(self):
+    def model_prepare(self, TRAIN_ENABLE=False):
         self.extract_data()
-        # 初始化 tokenizer，将数据转化为 token
-        print(colors.fg.BLUE + "Tokenizing..." + colors.RESET)
-        self.checkpoint = "t5-small"
-        self.tokenizer = AutoTokenizer.from_pretrained(self.checkpoint)
-        self.tokenized_data = self.data.map(self.tokenize_func, batched=True)
-        self.data_collator = DataCollatorForSeq2Seq(tokenizer=self.tokenizer, model=self.checkpoint)
+        if TRAIN_ENABLE:  
+            # 初始化 tokenizer，将数据转化为 token
+            print(colors.fg.BLUE + "Tokenizing..." + colors.RESET)
+            self.checkpoint = "t5-small"
+            self.tokenizer = AutoTokenizer.from_pretrained(self.checkpoint)
+            self.tokenized_data = self.data.map(self.tokenize_func, batched=True)
+            self.data_collator = DataCollatorForSeq2Seq(tokenizer=self.tokenizer, model=self.checkpoint)
+        else:
+            self.tokenizer = AutoTokenizer.from_pretrained(self.MODEL_DIR)
+            self.impl_data = self.data["test"]
     
     def model_init(self):
         print(colors.fg.BLUE + "Model initializing..." + colors.RESET)
@@ -89,17 +94,36 @@ class learning_module:
             tokenizer=self.tokenizer,
         )
     
-    def modeL_train(self):
+    def model_train(self):
         print(colors.fg.BLUE + "Training..." + colors.RESET)
         self.trainer.train()
         self.trainer.save_model(self.MODEL_DIR)
         print(colors.fg.BLUE + "Training done: model saved to " + self.MODEL_DIR + colors.RESET)
 
-    def learning_test(self):
-        self.model_prepare()
+    def model_generate(self):
+        self.model_prepare(TRAIN_ENABLE=True)
         self.model_init()
-        self.modeL_train()
-        
+        self.model_train()
+    
+    def model_implement(self, MODEL_DIR=""):
+        if MODEL_DIR:
+            self.MODEL_DIR = MODEL_DIR
+            self.model = AutoModelForSeq2SeqLM.from_pretrained(self.MODEL_DIR)
+            print(colors.fg.BLUE + "Model loaded: " + self.MODEL_DIR + colors.RESET)
+        else:
+            self.model_generate()
+        self.model_prepare(TRAIN_ENABLE=False)
+        print(colors.fg.BLUE + "Implementing..." + colors.RESET)
+        print(colors.fg.DARKGREY + "==================== Result ===================" + colors.RESET)
+        # 使用tokenizer对文本进行编码
+        input_text = self.impl_data[0][self.source]
+        inputs = self.tokenizer(input_text, return_tensors="pt", return_attention_mask=True, padding=True, truncation=True)
+        print(colors.fg.BLUE + "Input aarch64: " + colors.RESET + input_text)
+        # 使用模型进行推理
+        outputs = self.model.generate(**inputs, max_length=512, num_return_sequences=1)
+        # 解码生成的文本
+        generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        print(colors.fg.BLUE + "Generated x86_64: " + colors.RESET +generated_text)
 
 
 if __name__ == "__main__":
@@ -113,5 +137,5 @@ if __name__ == "__main__":
         print(f"The specified cfile '{cfile}' does not exist.")
         sys.exit(1)
     
-    lm = learning_module(cfile)
-    lm.learning_test()
+    lm = learning_module(cfile, DATA_PATH="./test/temp_data.json")  # 这里改数据
+    lm.model_implement(MODEL_DIR="./model")                         # 这里改模型
