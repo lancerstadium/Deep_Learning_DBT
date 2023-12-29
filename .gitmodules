@@ -1,0 +1,6 @@
+[submodule "submodule/bin2ml"]
+	path = submodule/bin2ml
+	url = https://github.com/br0kej/bin2ml.git
+[submodule "submodule/Toolpacks"]
+	path = submodule/Toolpacks
+	url = https://github.com/Azathothas/Toolpacks.git

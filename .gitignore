@@ -1,0 +1,25 @@
+# gitignore
+*.tmp
+.vscode*
+.vscode
+*.out
+*.o
+*.bc
+*.s
+*.ll
+*.log
+benchmark/*
+benchmark/origin_data/*
+benchmark/origin_data/aarch64/*.json
+benchmark/origin_data/x86_64/*.json
+submodule/Toolpacks/*
+submodule/bin2ml/*
+submodule/*
+*.pyc
+.conda*
+*.bin
+model/*.bin
+model/*.model
+model/token*
+model/special*
+src/__*
